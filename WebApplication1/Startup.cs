@@ -10,6 +10,8 @@ using FluentValidation;
 using FluentValidation.WebApi;
 using WebApplication1.Models;
 using WebApplication1.Validators;
+using System.Reflection;
+using SimpleInjector.Lifestyles;
 
 [assembly: OwinStartup(typeof(WebApplication1.Startup))]
 
@@ -27,6 +29,7 @@ namespace WebApplication1
             // configs...
             var container = new Container();
             container.Options.DefaultScopedLifestyle = new WebApiRequestLifestyle();
+            //container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
             container.RegisterWebApiControllers(configuration);
 
             // register...
@@ -47,9 +50,13 @@ namespace WebApplication1
             WebApiConfig.Register(configuration);
             ConfigureAuth(app);
             app.UseWebApi(configuration);
+
+            configuration.Services.Clear(Type.GetType("System.Web.Http.Validation.IModelValidatorCache, System.Web.Http"));
+
         }
     }
 
+    
     public class SimpleInjectorValidatorFactory : ValidatorFactoryBase {
         private readonly Container _container;
 
